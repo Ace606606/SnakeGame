@@ -1,0 +1,42 @@
+QMainWindow {
+    background-color: #000000;
+}
+
+QPushButton {
+    background-color: #12b918;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+QPushButton:hover {
+    background-color: #45a049;
+}
+
+QLabel#mainLabel {
+    font-size: 18px;
+    font-weight: bold;
+    color: rgb(23, 238, 23);
+}
+
+QLabel#statusLabel {
+    font-size: 14px;
+    color: rgb(123, 255, 0);
+    background-color: black;
+    padding: 5px;
+}
+
+QLabel#descrSpeed {
+    font-size: 14px;
+    color: rgb(123, 255, 0);
+    background-color: rgb(226, 10, 10);
+    padding: 5px;
+}
+
+QCheckBox#wallCrossingBox {
+    font-size: 14px;
+    color: rgb(123, 255, 0);
+    background-color: rgb(2, 3, 2);
+    padding: 5px;
+}
