@@ -1,5 +1,5 @@
 // ./include/gameWidget.cpp
-#include "gameWidget.hpp"
+#include "game_widget.hpp"
 
 #include <QDebug>
 #include <QKeyEvent>

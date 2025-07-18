@@ -4,35 +4,54 @@
 #include <QTextStream>
 
 #include "constants.hpp"
-#include "mainWindow.hpp"
+#include "language_manager.hpp"
+#include "main_window.hpp"
 
-void load_style(QApplication& app) {
-    QFile file(":style/style.qss");
-    if (file.open(QFile::ReadOnly | QFile::Text)) {
-        QTextStream in(&file);
-        QString style = in.readAll();
-        app.setStyleSheet(style);
-        file.close();
-    } else {
-        qDebug() << "Не удалось загрузить стиль";
-    }
-}
+// void loadStyle(QApplication& app) {
+//     QFile file(":style/style.qss");
+//     if (file.open(QFile::ReadOnly | QFile::Text)) {
+//         QTextStream in(&file);
+//         QString style = in.readAll();
+//         app.setStyleSheet(style);
+//         file.close();
+//     } else {
+//         qDebug() << "Не удалось загрузить стиль";
+//     }
+// }
 
-void config_window(QApplication& app, MainWindow& window) {
+void configWindow(QApplication& app, MainWindow& window) {
     window.setWindowTitle(app.applicationName());
     window.resize(500, 500);
     window.setStyle(app.setStyle("Fusion"));
 }
 
+void initLanguageManager(const QString& initialLanguageCode) {
+    LanguageManager& languageManager = LanguageManager::instance();
+    languageManager.initializeLanguages();
+    if (!languageManager.setLanguage(initialLanguageCode)) {
+        qWarning() << "Failed to set initial language to" << initialLanguageCode
+                   << ". Trying fallback.";
+        if (!languageManager.setLanguage(
+                AppConstants::LanguageCodes::RUSSIAN_RU)) {
+            qWarning() << "Failed to set initial language to Russian either. "
+                          "No translations loaded.";
+        }
+    }
+}
+
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
-    load_style(app);
+
+    initLanguageManager(AppConstants::LanguageCodes::RUSSIAN_RU);
+
+    // loadStyle(app);
 
     app.setApplicationName(AppConstants::APP_NAME);
     app.setApplicationVersion(AppConstants::APP_VERSION);
 
     MainWindow window;
-    config_window(app, window);
+    configWindow(app, window);
+
     window.show();
 
     return app.exec();

@@ -11,22 +11,28 @@ find_package(Qt5 REQUIRED COMPONENTS Widgets)
 
 set(SOURCES
     src/run.cpp
-    src/mainWindow.cpp
-    src/mainWidget.cpp
-    src/gameWidget.cpp
-    src/optionWidget.cpp
+    src/main_window.cpp
+    src/main_widget.cpp
+    src/game_widget.cpp
+    src/option_widget.cpp
+    src/ui_factory.cpp
+    src/language_manager.cpp
 )
 
 qt5_wrap_cpp(MOC_SOURCES 
-    include/mainWindow.hpp
-    include/mainWidget.hpp
-    include/gameWidget.hpp
-    include/optionWidget.hpp
+    include/main_window.hpp
+    include/main_widget.hpp
+    include/game_widget.hpp
+    include/option_widget.hpp
+    include/ui_factory.hpp
+    include/language_manager.hpp
 )
+
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${MOC_SOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 
 qt_add_resources(SnakeGame_RESOURCES resources.qrc)
 

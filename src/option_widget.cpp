@@ -1,6 +1,6 @@
 // ./src/optionWidget.cpp
 
-#include "optionWidget.hpp"
+#include "option_widget.hpp"
 
 #include <QCheckBox>
 #include <QLabel>
@@ -8,6 +8,12 @@
 #include <QSpacerItem>
 #include <QSpinBox>
 #include <QVBoxLayout>
+
+OptionWidget::OptionWidget(QWidget* parent) : QWidget(parent) {
+    QVBoxLayout* layout = new QVBoxLayout(this);
+    setupSpeedControls(layout);
+    setupWallCrossingControls(layout);
+}
 
 void OptionWidget::setupSpeedControls(QVBoxLayout* layout) {
     QLabel* descrSpeed = new QLabel("Скорость (мс на ход):");
@@ -25,12 +31,6 @@ void OptionWidget::setupWallCrossingControls(QVBoxLayout* layout) {
     wallCrossingBox->setObjectName("wallCrossingBox");
     wallCrossingBox->setChecked(false);
     layout->addWidget(wallCrossingBox);
-}
-
-OptionWidget::OptionWidget(QWidget* parent) : QWidget(parent) {
-    QVBoxLayout* layout = new QVBoxLayout(this);
-    setupSpeedControls(layout);
-    setupWallCrossingControls(layout);
 }
 
 int OptionWidget::getSpeed() const { return speedBox->value(); }
