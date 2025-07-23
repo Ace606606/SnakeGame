@@ -1,37 +1,31 @@
-// ./include/mainWidget.hpp
+// ./include/main_widget.hpp
 #pragma once
-#include <QPushButton>
-#include <QWidget>
+
+#include "base_page_widget.hpp"
 
 class QVBoxLayout;
+class QPushButton;
 
-class MainWidget : public QWidget {
+class MainWidget : public BasePageWidget {
     Q_OBJECT
    public:
     explicit MainWidget(QWidget* parent = nullptr);
     ~MainWidget() = default;
 
-    void retranslateUi();
+    void retranslateUi() override;
 
    protected:
-    void changeEvent(QEvent* event) override;
+    void setupContentPanel() override;
+    void setupConnections() override;
+
    signals:
     void startGameClicked();
     void optionClicked();
     void exitClicked();
 
    private:
-    QVBoxLayout* m_mainLayout;
-    QWidget* m_topContainer;
-    QWidget* m_middleContainer;
-    // btn
+    void setupContentButtons(QVBoxLayout* contentLayout);
     QPushButton* m_btnStart = nullptr;
     QPushButton* m_btnOption = nullptr;
     QPushButton* m_btnExit = nullptr;
-
-    void setupUi();
-    void setupConnections();
-    void setupTopPanel();
-    void setupMiddlePanel();
-    void setupBottomPanel();
 };

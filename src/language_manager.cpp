@@ -9,6 +9,7 @@
 LanguageManager::LanguageManager() : m_currentLanguage("") {}
 
 void LanguageManager::initializeLanguages() {
+    m_availableLanguages[AppConstants::LanguageCodes::ENGLISH_US] = "";
     m_availableLanguages[AppConstants::LanguageCodes::RUSSIAN_RU] =
         AppConstants::LanguageCodes::PATH_TO_RUS_QM;
     qDebug() << "LanguageManager: Initialized with available languages:"

@@ -7,21 +7,21 @@
 #include "language_manager.hpp"
 #include "main_window.hpp"
 
-// void loadStyle(QApplication& app) {
-//     QFile file(":style/style.qss");
-//     if (file.open(QFile::ReadOnly | QFile::Text)) {
-//         QTextStream in(&file);
-//         QString style = in.readAll();
-//         app.setStyleSheet(style);
-//         file.close();
-//     } else {
-//         qDebug() << "Не удалось загрузить стиль";
-//     }
-// }
+void loadStyle(QApplication& app) {
+    QFile file(":style/style.qss");
+    if (file.open(QFile::ReadOnly | QFile::Text)) {
+        QTextStream in(&file);
+        QString style = in.readAll();
+        app.setStyleSheet(style);
+        file.close();
+    } else {
+        qDebug() << "Не удалось загрузить стиль";
+    }
+}
 
 void configWindow(QApplication& app, MainWindow& window) {
     window.setWindowTitle(app.applicationName());
-    window.resize(500, 500);
+    window.resize(AppConstants::WINDOW_WIDTH, AppConstants::WINDOW_HEIGHT);
     window.setStyle(app.setStyle("Fusion"));
 }
 
@@ -40,14 +40,15 @@ void initLanguageManager(const QString& initialLanguageCode) {
 }
 
 int main(int argc, char** argv) {
+    qRegisterMetaType<AppConstants::GameSettings::Difficulty>();
     QApplication app(argc, argv);
 
-    initLanguageManager(AppConstants::LanguageCodes::RUSSIAN_RU);
+    initLanguageManager(AppConstants::LanguageCodes::DEFAULT_LANGUAGE);
 
-    // loadStyle(app);
+    loadStyle(app);
 
-    app.setApplicationName(AppConstants::APP_NAME);
-    app.setApplicationVersion(AppConstants::APP_VERSION);
+    app.setApplicationName(AppConstants::AboutApp::APP_NAME);
+    app.setApplicationVersion(AppConstants::AboutApp::VERSION);
 
     MainWindow window;
     configWindow(app, window);

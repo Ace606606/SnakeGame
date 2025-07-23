@@ -12,6 +12,7 @@ find_package(Qt5 REQUIRED COMPONENTS Widgets)
 set(SOURCES
     src/run.cpp
     src/main_window.cpp
+    src/base_page_widget.cpp
     src/main_widget.cpp
     src/game_widget.cpp
     src/option_widget.cpp
@@ -21,6 +22,7 @@ set(SOURCES
 
 qt5_wrap_cpp(MOC_SOURCES 
     include/main_window.hpp
+    include/base_page_widget.hpp
     include/main_widget.hpp
     include/game_widget.hpp
     include/option_widget.hpp

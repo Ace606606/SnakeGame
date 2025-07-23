@@ -1,42 +1,145 @@
-QMainWindow {
+/*======================START WIDGETS======================*/
+QWidget#MainWindow_m_centralWidgetContainer {
     background-color: #000000;
 }
 
-QPushButton {
-    background-color: #12b918;
-    color: white;
+QWidget#BasePageWidget {
+    background-color: #474747;
+    border: 2px solid white;
+    border-radius: 10px;
+    padding: 15px;
+
+}
+
+QWidget#BasePageWidget_m_topContainer {
+    background-color: #0b8eba;
+
+}
+
+QWidget#MainWidget_w_m_contentContainer {
+    background-color: #0b8eba;
+
+}
+
+QWidget#MainWidget_contentButtons {
+    background-color: #005c7b;
+
+}
+
+QWidget#OptionWidget_m_contentContainer {
+    background-color: #0b8eba;
+
+}
+
+QWidget#OptionWidget_contentButtons {
+    background-color: #005c7b;
+
+}
+
+
+
+/*======================END WIDGET======================*/
+
+/*======================START LABELS======================*/
+QLabel#BasePageWidget_m_appTitleLabel {
+    background-color: #b3ff00;
+    font-size: 42px;
     font-weight: bold;
+    padding: 5px 10px;
     border-radius: 5px;
-    padding: 5px;
 }
 
-QPushButton:hover {
-    background-color: #45a049;
-}
-
-QLabel#mainLabel {
-    font-size: 18px;
+QLabel#BasePageWidget_m_pageTitleLabel {
+    background-color: #b3ff00;
+    font-size: 16px;
     font-weight: bold;
-    color: rgb(23, 238, 23);
 }
 
-QLabel#statusLabel {
-    font-size: 14px;
-    color: rgb(123, 255, 0);
-    background-color: black;
-    padding: 5px;
+QLabel#OptionWidget_m_difficultyLabel {
+    background-color: #b3ff00;
+    font-size: 16px;
+    font-weight: bold;
 }
 
-QLabel#descrSpeed {
-    font-size: 14px;
-    color: rgb(123, 255, 0);
-    background-color: rgb(226, 10, 10);
-    padding: 5px;
+QLabel#OptionWidget_m_languageLabel {
+    background-color: #b3ff00;
+    font-size: 16px;
+    font-weight: bold;
 }
 
-QCheckBox#wallCrossingBox {
-    font-size: 14px;
-    color: rgb(123, 255, 0);
-    background-color: rgb(2, 3, 2);
-    padding: 5px;
+/*======================END LABEL======================*/
+
+/*======================START BUTTONS======================*/
+/*======================main_widget.cpp======================*/
+QPushButton#MainWidget_btn_Start,
+QPushButton#MainWidget_btn_Options,
+QPushButton#MainWidget_btn_Exit {
+    background-color: #b3ff00;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: normal;
+    padding: 10px 20px;
+    margin: 5px;
 }
+
+QPushButton#MainWidget_btn_Start:hover,
+QPushButton#MainWidget_btn_Options:hover,
+QPushButton#MainWidget_btn_Exit:hover {
+    background-color: #f95d02;
+}
+
+QPushButton#MainWidget_btn_Start:pressed,
+QPushButton#MainWidget_btn_Options:pressed,
+QPushButton#MainWidget_btn_Exit:pressed {
+    background-color: #ff0000;
+    border: 1px solid #558800;
+}
+
+/*======================main_widget.cpp======================*/
+/*======================option_widget.cpp======================*/
+QComboBox#OptionWidget_m_difficultyComboBox {
+    background-color: #f95d02;
+}
+
+QCheckBox#OptionWidget_m_wallCrossingCheckBox {
+    background-color: #f95d02;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+QComboBox#OptionWidget_m_languageComboBox {
+    background-color: #f95d02;
+}
+
+QPushButton#OptionWidget_m_aboutButton,
+QPushButton#OptionWidget_m_backButton,
+QPushButton#OptionWidget_m_aboutButton {
+    background-color: #b3ff00;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: normal;
+    padding: 10px 20px;
+    margin: 5px;
+}
+
+QPushButton#OptionWidget_m_aboutButton:hover,
+QPushButton#OptionWidget_m_backButton:hover,
+QPushButton#OptionWidget_m_aboutButton:hover {
+    background-color: #f95d02;
+}
+
+QPushButton#OptionWidget_m_aboutButton:pressed,
+QPushButton#OptionWidget_m_backButton:pressed,
+QPushButton#OptionWidget_m_aboutButton:pressed {
+    background-color: #ff0000;
+    border: 1px solid #558800;
+}
+
+/*======================option_widget.cpp======================*/
+/*======================END BUTTONS======================*/
+
+/*======================START MESSEGE======================*/
+
+/*======================END MESSEGE======================*/

@@ -1,17 +1,16 @@
 // ./inlcude/main_window.hpp
 #pragma once
 
-#include <QLabel>
-#include <QLayout>
 #include <QMainWindow>
-#include <QPushButton>
-#include <QStackedWidget>
-#include <QStatusBar>
 
-#include "game_widget.hpp"
-#include "language_manager.hpp"
-#include "main_widget.hpp"
-#include "option_widget.hpp"
+class QStackedWidget;
+class QVBoxLayout;
+class QStatusBar;
+class QLabel;
+class QPushButton;
+class MainWidget;
+class GameWidget;
+class OptionWidget;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -29,6 +28,7 @@ class MainWindow : public QMainWindow {
     void onStartClicked();
     void onOptionClicked();
     void onExitClicked();
+    void onBackToMainMenu();
 
    private:
     QWidget *m_centralWidgetContainer = nullptr;

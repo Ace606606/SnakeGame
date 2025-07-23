@@ -3,17 +3,19 @@
 
 #include <QApplication>
 #include <QDebug>
-#include <QLabel>
-#include <QLayout>
+#include <QEvent>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QStackedWidget>
+#include <QStatusBar>
+#include <QVBoxLayout>
 
 #include "constants.hpp"
+#include "game_widget.hpp"
+#include "language_manager.hpp"
+#include "main_widget.hpp"
+#include "option_widget.hpp"
 #include "ui_factory.hpp"
-
-// =====================================================
-#include <QEvent>
-#include <QStatusBar>
-// =====================================================
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setupUI();
@@ -24,8 +26,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
 void MainWindow::setupUI() {
     m_centralWidgetContainer = new QWidget(this);
+    m_centralWidgetContainer->setObjectName(
+        "MainWindow_m_centralWidgetContainer");
+
     m_centralLayout = new QVBoxLayout(m_centralWidgetContainer);
     m_centralWidgetContainer->setLayout(m_centralLayout);
+
     setCentralWidget(m_centralWidgetContainer);
 
     m_stack = new QStackedWidget(m_centralWidgetContainer);
@@ -69,6 +75,10 @@ void MainWindow::setupConnections() {
             &MainWindow::onOptionClicked);
     connect(m_mainWidget, &MainWidget::exitClicked, this,
             &MainWindow::onExitClicked);
+    connect(m_optionWidget, &OptionWidget::backToMainMenu, this,
+            &MainWindow::onBackToMainMenu);
+    // =============================================================
+    // delete
     connect(m_langEnButton, &QPushButton::clicked, this, [this]() {
         LanguageManager::instance().setLanguage(
             AppConstants::LanguageCodes::ENGLISH_US);
@@ -78,6 +88,7 @@ void MainWindow::setupConnections() {
         LanguageManager::instance().setLanguage(
             AppConstants::LanguageCodes::RUSSIAN_RU);
     });
+    // =============================================================
 }
 
 void MainWindow::retranslateUI() {
@@ -90,8 +101,8 @@ void MainWindow::retranslateUI() {
 void MainWindow::onStartClicked() {
     qDebug("The start button is pressed");
 
-    m_gameWidget->setSpeed(m_optionWidget->getSpeed());
-    m_gameWidget->setWallCrossing(m_optionWidget->isWallCrossingAllowed());
+    // m_gameWidget->setSpeed(m_optionWidget->getSpeed());
+    // m_gameWidget->setWallCrossing(m_optionWidget->isWallCrossingAllowed());
     m_gameWidget->startGame();
     m_gameWidget->setFocus();
 
@@ -113,6 +124,11 @@ void MainWindow::onExitClicked() {
     if (reply == QMessageBox::Yes) {
         QApplication::quit();
     }
+}
+
+void MainWindow::onBackToMainMenu() {
+    qDebug("The BackToMainMenu button is pressed");
+    m_stack->setCurrentWidget(m_mainWidget);
 }
 
 void MainWindow::changeEvent(QEvent *event) {
