@@ -27,9 +27,8 @@ class OptionWidget : public BasePageWidget {
 
    signals:
     void backToMainMenu();
-    void settingsChangeAndSaved();
-    void requestLanguageChange(const QString &languageCode);
     void settingsChangedAndSaved();
+    void requestLanguageChange(const QString &languageCode);
 
    protected:
     void setupContentPanel() override;
@@ -45,26 +44,24 @@ class OptionWidget : public BasePageWidget {
     void onSaveClicked();
 
    private:
-    QLabel *m_difficultyLabel;
-    QComboBox *m_difficultyComboBox;
+    QLabel *m_difficultyLabel = nullptr;
+    QComboBox *m_difficultyComboBox = nullptr;
 
-    QLabel *m_wallCrossingLabel;
-    QCheckBox *m_wallCrossingCheckBox;
+    QLabel *m_wallCrossingLabel = nullptr;
+    QCheckBox *m_wallCrossingCheckBox = nullptr;
 
-    QLabel *m_languageLabel;
-    QComboBox *m_languageComboBox;
+    QLabel *m_languageLabel = nullptr;
+    QComboBox *m_languageComboBox = nullptr;
 
-    QPushButton *m_aboutButton;
-    QPushButton *m_backButton;
-    QPushButton *m_saveButton;
+    QPushButton *m_aboutButton = nullptr;
+    QPushButton *m_backButton = nullptr;
+    QPushButton *m_saveButton = nullptr;
 
     bool m_settingsChanged = false;
     void setupContentButtons(QVBoxLayout *contentLayout);
-    void setupDifficultyControls(QVBoxLayout *contentLayout);
-    void setupWallCrossingControls(QVBoxLayout *contentLayout);
-    void setupLanguageControls(QVBoxLayout *contentLayout);
-    void setupActionButtons(QVBoxLayout *contentLayout);
-
+    void setupDifficultyControls(QVBoxLayout *layoutContentButtons);
+    void setupWallCrossingControls(QVBoxLayout *layoutContentButtons);
+    void setupLanguageControls(QVBoxLayout *layoutContentButtons);
+    void setupActionButtons(QVBoxLayout *layoutContentButtons);
     void showUnsavedChangedDialog();
-    void applyLoadedSettings();
 };

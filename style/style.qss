@@ -114,7 +114,7 @@ QComboBox#OptionWidget_m_languageComboBox {
 
 QPushButton#OptionWidget_m_aboutButton,
 QPushButton#OptionWidget_m_backButton,
-QPushButton#OptionWidget_m_aboutButton {
+QPushButton#OptionWidget_m_saveButton {
     background-color: #b3ff00;
     border: none;
     border-radius: 10px;
@@ -126,13 +126,13 @@ QPushButton#OptionWidget_m_aboutButton {
 
 QPushButton#OptionWidget_m_aboutButton:hover,
 QPushButton#OptionWidget_m_backButton:hover,
-QPushButton#OptionWidget_m_aboutButton:hover {
+QPushButton#OptionWidget_m_saveButton:hover {
     background-color: #f95d02;
 }
 
 QPushButton#OptionWidget_m_aboutButton:pressed,
 QPushButton#OptionWidget_m_backButton:pressed,
-QPushButton#OptionWidget_m_aboutButton:pressed {
+QPushButton#OptionWidget_m_saveButton:pressed {
     background-color: #ff0000;
     border: 1px solid #558800;
 }

@@ -8,6 +8,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 
 find_package(Qt5 REQUIRED COMPONENTS Widgets)
+find_package(spdlog CONFIG REQUIRED)
 
 set(SOURCES
     src/run.cpp
@@ -18,6 +19,8 @@ set(SOURCES
     src/option_widget.cpp
     src/ui_factory.cpp
     src/language_manager.cpp
+    src/settings_manager.cpp
+    src/log_manager.cpp
 )
 
 qt5_wrap_cpp(MOC_SOURCES 
@@ -28,6 +31,8 @@ qt5_wrap_cpp(MOC_SOURCES
     include/option_widget.hpp
     include/ui_factory.hpp
     include/language_manager.hpp
+    include/settings_manager.hpp
+    include/log_manager.hpp
 )
 
 
@@ -41,6 +46,5 @@ qt_add_resources(SnakeGame_RESOURCES resources.qrc)
 target_sources(${PROJECT_NAME} PRIVATE ${SnakeGame_RESOURCES})
  
 
-target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
+target_link_libraries(${PROJECT_NAME} Qt5::Widgets spdlog::spdlog)
 
-#configure_file(${CMAKE_SOURCE_DIR}/style/style.qss style/style.qss COPYONLY)

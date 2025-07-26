@@ -25,10 +25,13 @@ class MainWindow : public QMainWindow {
     void changeEvent(QEvent *event) override;
 
    private slots:
-    void onStartClicked();
-    void onOptionClicked();
-    void onExitClicked();
+    void onStartGameClicked();
+    void onOptionMenuOpened();
+    void onExitAppClicked();
+
     void onBackToMainMenu();
+    void handleChangeLanguage(const QString &languageCode);
+    void handleGameSettingsChanged();
 
    private:
     QWidget *m_centralWidgetContainer = nullptr;
@@ -39,12 +42,14 @@ class MainWindow : public QMainWindow {
     GameWidget *m_gameWidget = nullptr;
     OptionWidget *m_optionWidget = nullptr;
 
-    QStatusBar *m_statusBar;
-    QLabel *m_statusLabelBar;
-    QPushButton *m_langRuButton;
-    QPushButton *m_langEnButton;
+    QStatusBar *m_statusBar = nullptr;
+    QLabel *m_statusLabelBar = nullptr;
+    QPushButton *m_langRuButton = nullptr;
+    QPushButton *m_langEnButton = nullptr;
 
     void setupUI();
     void setupConnections();
     void setupStatusBar();
+    // void loadMainWindowSettings();
+    // void saveMainWindowSettings();
 };

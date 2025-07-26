@@ -9,10 +9,32 @@ namespace AppConstants {
 
 namespace AboutApp {
 inline const QString APP_NAME = "Snake Game";
+inline const QString ORGANIZATON_NAME = "indi";
 inline const QString VERSION = "0.0.3";
 inline const QString DEVELOPER = "Ace606606";
 inline const QString GITHUB_LINK = "https://github.com/Ace606606/SnakeGame";
 }  // namespace AboutApp
+
+namespace Logging {
+inline const QString DEFAULT_LOG_LEVEL = "Debug";
+inline const bool DEFAULT_LOG_TO_FILE = "true";
+inline const bool DEFAULT_LOG_TO_CONSOLE = "true";
+
+inline const QMap<QString, QtMsgType> LOG_LEVEL_MAP = {
+    {"Debug", QtDebugMsg},
+    {"Info", QtInfoMsg},
+    {"Warning", QtWarningMsg},
+    {"Critical", QtCriticalMsg},
+    {"Fatal", QtFatalMsg}};
+
+inline const QMap<QtMsgType, QString> LOG_LEVEL_NAMES_MAP = {
+    {QtDebugMsg, "Debug"},
+    {QtInfoMsg, "Info"},
+    {QtWarningMsg, "Warning"},
+    {QtCriticalMsg, "Critical"},
+    {QtFatalMsg, "Fatal"}};
+
+}  // namespace Logging
 
 namespace LanguageCodes {
 inline const QString DEFAULT_LANGUAGE = "en_US";
