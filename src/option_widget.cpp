@@ -2,6 +2,8 @@
 
 #include "option_widget.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
@@ -19,6 +21,7 @@
 #include "ui_factory.hpp"
 
 OptionWidget::OptionWidget(QWidget* parent) : BasePageWidget(parent) {
+    SPDLOG_DEBUG("Create Option.");
     setupContentPanel();
     setupConnections();
 }
@@ -46,7 +49,7 @@ void OptionWidget::setupContentButtons(QVBoxLayout* contentLayout) {
     setupLanguageControls(layoutContentButtons);
     setupDifficultyControls(layoutContentButtons);
     setupWallCrossingControls(layoutContentButtons);
-    setupActionButtons(layoutContentButtons);
+    setupActionButtons(layoutContentButtons, contentButtons);
 
     contentLayout->addWidget(contentButtons, 0,
                              Qt::AlignHCenter | Qt::AlignTop);
@@ -66,16 +69,6 @@ void OptionWidget::setupLanguageControls(QVBoxLayout* contentLayout) {
                                                               langCode),
             langCode);
     }
-
-    // QString currentLangCode = LanguageManager::instance().currentLanguage();
-    // if (currentLangCode.isEmpty()) {
-    //     currentLangCode = AppConstants::LanguageCodes::DEFAULT_LANGUAGE;
-    // }
-
-    // int currentIndex = m_languageComboBox->findData(currentLangCode);
-    // if (currentIndex != -1) {
-    //     m_languageComboBox->setCurrentIndex(currentIndex);
-    // }
 
     hLayout->addWidget(m_languageLabel);
     hLayout->addWidget(m_languageComboBox);
@@ -100,18 +93,6 @@ void OptionWidget::setupDifficultyControls(QVBoxLayout* contentLayout) {
         tr("Hard"),
         QVariant::fromValue(AppConstants::GameSettings::Difficulty::Hard));
 
-    // int defaultIndex = 0;
-    // for (int i = 0; i < m_difficultyComboBox->count(); ++i) {
-    //     if (m_difficultyComboBox->itemData(i)
-    //             .value<AppConstants::GameSettings::Difficulty>() ==
-    //         AppConstants::GameSettings::DEFAULT_DIFFICULTY) {
-    //         defaultIndex = i;
-    //         break;
-    //     }
-    // }
-
-    // m_difficultyComboBox->setCurrentIndex(defaultIndex);
-
     hLayout->addWidget(m_difficultyLabel);
     hLayout->addWidget(m_difficultyComboBox);
     contentLayout->addLayout(hLayout);
@@ -124,20 +105,22 @@ void OptionWidget::setupWallCrossingControls(QVBoxLayout* contentLayout) {
     contentLayout->addWidget(m_wallCrossingCheckBox);
 }
 
-void OptionWidget::setupActionButtons(QVBoxLayout* contentLayout) {
+void OptionWidget::setupActionButtons(QVBoxLayout* contentLayout,
+                                      QWidget* contentButtons) {
     QHBoxLayout* buttonLayout = new QHBoxLayout();
 
     m_aboutButton = UiFactory::createStandardButton(
         tr("About"), AppConstants::BUTTON_WIDTH, AppConstants::BUTTON_HEIGHT,
-        nullptr, "OptionWidget_m_aboutButton");
+        contentButtons, "OptionWidget_m_aboutButton");
 
     m_backButton = UiFactory::createStandardButton(
         tr("Back to Main Menu"), AppConstants::BUTTON_WIDTH,
-        AppConstants::BUTTON_HEIGHT, nullptr, "OptionWidget_m_backButton");
+        AppConstants::BUTTON_HEIGHT, contentButtons,
+        "OptionWidget_m_backButton");
 
     m_saveButton = UiFactory::createStandardButton(
         tr("Save"), AppConstants::BUTTON_WIDTH, AppConstants::BUTTON_HEIGHT,
-        nullptr, "OptionWidget_m_saveButton");
+        contentButtons, "OptionWidget_m_saveButton");
 
     buttonLayout->addWidget(m_aboutButton);
     buttonLayout->addWidget(m_saveButton);
@@ -167,7 +150,7 @@ void OptionWidget::setupConnections() {
 }
 
 void OptionWidget::retranslateUi() {
-    qDebug() << "OptionWidget::retranslateUi()";
+    SPDLOG_DEBUG("Change language option.");
     if (m_pageTitleLabel) {
         m_pageTitleLabel->setText(tr("Option"));
     }
@@ -212,19 +195,19 @@ void OptionWidget::retranslateUi() {
 
 void OptionWidget::onDifficultyChanged(int index) {
     Q_UNUSED(index);
-    qDebug() << "OptionWidget::onDifficultyChanged: index =" << index;
+    SPDLOG_DEBUG("Index: {}", index);
     m_settingsChanged = true;
 }
 
 void OptionWidget::onWallCrossingChanged(bool checked) {
     Q_UNUSED(checked);
-    qDebug() << "OptionWidget::onWallCrossingChanged: checked =" << checked;
+    SPDLOG_DEBUG("Checked: {}", checked);
     m_settingsChanged = true;
 }
 
 void OptionWidget::onLanguageComboBoxChanged(int index) {
     Q_UNUSED(index);
-    qDebug() << "OptionWidget::onLanguageComboBoxChanged: index =" << index;
+    SPDLOG_DEBUG("Index: {}", index);
     m_settingsChanged = true;
 }
 
@@ -258,12 +241,15 @@ void OptionWidget::onBackToMainMenuClicked() {
 
 void OptionWidget::onSaveClicked() {
     SettingsManager::instance().setDifficulty(getSelectedDifficulty());
-    SettingsManager::instance().setWallCrossingAllowed(isWallCrossingAllowed());
-    SettingsManager::instance().setLanguageCode(getSelectedLanguageCode());
+    SettingsManager::instance().setWallCrossingAllowed(
+        getIsWallCrossingAllowed());
+
+    QString selectedLanguageCode = getSelectedLanguageCode();
+    SettingsManager::instance().setLanguageCode(selectedLanguageCode);
+
     m_settingsChanged = false;
     emit settingsChangedAndSaved();
 
-    QString selectedLanguageCode = getSelectedLanguageCode();
     if (LanguageManager::instance().currentLanguage() != selectedLanguageCode) {
         emit requestLanguageChange(selectedLanguageCode);
     }
@@ -272,18 +258,14 @@ void OptionWidget::onSaveClicked() {
 AppConstants::GameSettings::Difficulty OptionWidget::getSelectedDifficulty()
     const {
     if (m_difficultyComboBox) {
-        qDebug() << "OptionWidget::getSelectedDifficulty"
-                 << m_wallCrossingCheckBox->isChecked();
         return m_difficultyComboBox->currentData()
             .value<AppConstants::GameSettings::Difficulty>();
     }
     return AppConstants::GameSettings::DEFAULT_DIFFICULTY;
 }
 
-bool OptionWidget::isWallCrossingAllowed() const {
+bool OptionWidget::getIsWallCrossingAllowed() const {
     if (m_wallCrossingCheckBox) {
-        qDebug() << "OptionWidget::isWallCrossingAllowed"
-                 << m_wallCrossingCheckBox->isChecked();
         return m_wallCrossingCheckBox->isChecked();
     }
     return AppConstants::GameSettings::DEFAULT_WALL_CROSSING;
@@ -291,15 +273,13 @@ bool OptionWidget::isWallCrossingAllowed() const {
 
 QString OptionWidget::getSelectedLanguageCode() const {
     if (m_languageComboBox) {
-        qDebug() << "OptionWidget::getSelectedLanguageCode"
-                 << m_wallCrossingCheckBox->isChecked();
         return m_languageComboBox->currentData().toString();
     }
     return AppConstants::LanguageCodes::DEFAULT_LANGUAGE;
 }
 
 void OptionWidget::loadSettings() {
-    qDebug() << "OptionWidget: Loading settings and applying to UI...";
+    SPDLOG_DEBUG("Loading settings and applying to UI...");
 
     AppConstants::GameSettings::Difficulty loadedDifficulty =
         SettingsManager::instance().getDifficulty();
@@ -320,7 +300,7 @@ void OptionWidget::loadSettings() {
     }
 
     m_settingsChanged = false;
-    qDebug() << "OptionWidget: Settings loaded and applied to UI.";
+    SPDLOG_DEBUG("Settings loaded and applied to UI.");
 }
 
 void OptionWidget::showUnsavedChangedDialog() {
@@ -339,7 +319,7 @@ void OptionWidget::showUnsavedChangedDialog() {
     switch (ret) {
         case QMessageBox::Save:
             onSaveClicked();
-            // emit backToMainMenu();  //!
+            emit backToMainMenu();
             break;
         case QMessageBox::Discard:
             loadSettings();

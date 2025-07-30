@@ -22,7 +22,7 @@ class MainWindow : public QMainWindow {
     void retranslateUI();
 
    protected:
-    void changeEvent(QEvent *event) override;
+    // void changeEvent(QEvent *event) override;
 
    private slots:
     void onStartGameClicked();

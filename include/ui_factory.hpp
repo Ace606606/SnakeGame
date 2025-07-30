@@ -1,4 +1,4 @@
-// ./srs/ui_factory.hpp
+// ./src/ui_factory.hpp
 #pragma once
 
 #include <QCheckBox>

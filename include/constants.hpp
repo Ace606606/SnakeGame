@@ -1,9 +1,12 @@
 // ./include/constants.hpp
 #pragma once
+#include <spdlog/spdlog.h>
+
 #include <QMap>
 #include <QMetaType>
 #include <QPair>
 #include <QString>
+#include <QtGlobal>
 
 namespace AppConstants {
 
@@ -17,23 +20,34 @@ inline const QString GITHUB_LINK = "https://github.com/Ace606606/SnakeGame";
 
 namespace Logging {
 inline const QString DEFAULT_LOG_LEVEL = "Debug";
-inline const bool DEFAULT_LOG_TO_FILE = "true";
-inline const bool DEFAULT_LOG_TO_CONSOLE = "true";
+inline const bool DEFAULT_LOG_TO_FILE = true;
+inline const bool DEFAULT_LOG_TO_CONSOLE = true;
+inline const QString DEFAULT_CONSOLE_LOG_LEVEL = "Debug";
+inline const QString DEFAULT_FILE_LOG_LEVEL = "Debug";
 
-inline const QMap<QString, QtMsgType> LOG_LEVEL_MAP = {
-    {"Debug", QtDebugMsg},
-    {"Info", QtInfoMsg},
-    {"Warning", QtWarningMsg},
-    {"Critical", QtCriticalMsg},
-    {"Fatal", QtFatalMsg}};
+inline const QMap<QString, spdlog::level::level_enum> SPDLOG_LEVEL_MAP{
+    {"Trace", spdlog::level::trace},       {"Debug", spdlog::level::debug},
+    {"Info", spdlog::level::info},         {"Warning", spdlog::level::warn},
+    {"Critical", spdlog::level::critical}, {"Error", spdlog::level::err},
+    {"Fatal", spdlog::level::critical},    {"Off", spdlog::level::off},
+};
 
-inline const QMap<QtMsgType, QString> LOG_LEVEL_NAMES_MAP = {
-    {QtDebugMsg, "Debug"},
-    {QtInfoMsg, "Info"},
-    {QtWarningMsg, "Warning"},
-    {QtCriticalMsg, "Critical"},
-    {QtFatalMsg, "Fatal"}};
-
+inline spdlog::level::level_enum mapQtMsgTypeToSpdlogLevel(QtMsgType type) {
+    switch (type) {
+        case QtDebugMsg:
+            return spdlog::level::debug;
+        case QtInfoMsg:
+            return spdlog::level::info;
+        case QtWarningMsg:
+            return spdlog::level::warn;
+        case QtCriticalMsg:
+            return spdlog::level::critical;
+        case QtFatalMsg:
+            return spdlog::level::critical;
+        default:
+            return spdlog::level::info;
+    }
+}
 }  // namespace Logging
 
 namespace LanguageCodes {

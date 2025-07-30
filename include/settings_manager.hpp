@@ -5,9 +5,8 @@
 
 #include "constants.hpp"
 
+class QSettings;
 class QString;
-
-// Q_DECLARE_METATYPE(AppConstants::GameSettings::Difficulty)
 
 class SettingsManager : public QObject {
     Q_OBJECT
@@ -17,23 +16,31 @@ class SettingsManager : public QObject {
     SettingsManager(const SettingsManager&) = delete;
     SettingsManager& operator=(const SettingsManager&) = delete;
 
-    AppConstants::GameSettings::Difficulty getDifficulty() const;
-    bool getWallCrossingAllowed() const;
-    QString getLanguageCode() const;
-
+    void setLanguageCode(const QString& languageCode);
     void setDifficulty(AppConstants::GameSettings::Difficulty difficulty);
     void setWallCrossingAllowed(bool allowed);
-    void setLanguageCode(const QString& languageCode);
 
     QString getLogLevelName() const;
     bool getLogToFileEnabled() const;
     bool getLogToConsoleEnabled() const;
+    QString getConsoleLogLevelName() const;
+    QString getFileLogLevelName() const;
+
+    QString getLanguageCode() const;
+
+    AppConstants::GameSettings::Difficulty getDifficulty() const;
+    bool getWallCrossingAllowed() const;
+
+    void resetToDefaults();
+
+   private:
+    QSettings m_settings;
+    explicit SettingsManager(QObject* parent = nullptr);
+    void initializeFileConfig();
 
     void setLogLevelName(const QString& levelName);
     void setLogToFileEnabled(bool enabled);
     void setLogToConsoleEnabled(bool enabled);
-
-   private:
-    explicit SettingsManager(QObject* parent = nullptr);
-    QSettings m_settings;
+    void setConsoleLogLevelName(const QString& levelName);
+    void setFileLogLevelName(const QString& levelName);
 };

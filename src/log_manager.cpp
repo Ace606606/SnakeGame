@@ -1,155 +1,185 @@
 // ./include/log_manager.hpp
-#include <QCoreApplication>
-#include <QDateTime>
+
+#include "log_manager.hpp"
+
+#include <spdlog/async.h>
+#include <spdlog/sinks/rotating_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+
 #include <QDebug>
 #include <QDir>
 #include <QStandardPaths>
-#include <log_manager.hpp>
+#include <QString>
+#include <chrono>
+#include <memory>
+#include <vector>
 
 #include "constants.hpp"
 
-// void customMessageOutput(QtMsgType type, const QMessageLogContext &context,
-//                          const QString &msg) {
-//     LogManager::instance().handleMessage(type, context, msg);
-// }
+void customMessageOutput(QtMsgType type, const QMessageLogContext& context,
+                         const QString& msg) {
+    std::string s_msg = msg.toStdString();
+    std::string s_file = context.function ? context.file : "unknown_file";
+    std::string s_function =
+        context.function ? context.function : "unknown_function";
+    int line = context.line;
 
-LogManager &LogManager::instance() {
+    spdlog::level::level_enum spd_level;
+    spd_level = AppConstants::Logging::mapQtMsgTypeToSpdlogLevel(type);
+
+    auto logger = spdlog::default_logger_raw();
+    if (logger) {
+        logger->log(
+            spdlog::source_loc{s_file.c_str(), line, s_function.c_str()},
+            spd_level, "{}", s_msg);
+    } else {
+        fprintf(stderr, "Pre-spdlog Qt message [%s:%d,%s]: %s\n",
+                s_file.c_str(), line, s_function.c_str(), s_msg.c_str());
+    }
+
+    if (type == QtFatalMsg) {
+        abort();
+    }
+}
+
+LogManager& LogManager::instance() {
     static LogManager instance;
     return instance;
 }
 
-LogManager::LogManager(QObject *parent)
-    : QObject(parent), m_isHandlingMessage(false) {
-    // QString logDirPath =
-    //     QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)
-    //     +
-    //     "/logs";
-    // QDir logDir(logDirPath);
-    // if (!logDir.exists()) {
-    //     fprintf(stderr, "LogManager: Create log directory: %s\n",
-    //             logDir.path().toUtf8().constData());
-    //     logDir.mkpath(".");
-    // }
-
-    // QString logFilePath =
-    //     logDirPath + "/" + AppConstants::AboutApp::APP_NAME + ".log";
-    // m_logFile.setFileName(logFilePath);
-
-    // if (m_logFile.open(QIODevice::WriteOnly | QIODevice::Append |
-    //                    QIODevice::Text)) {
-    //     m_logStream.setDevice(&m_logFile);
-    //     fprintf(stderr, "LogManager: Log file opened at %s\n",
-    //             logFilePath.toLocal8Bit().constData());
-    // } else {
-    //     fprintf(stderr, "LogManager: Could not open log file %s %s\n",
-    //             logFilePath.toLocal8Bit().constData(),
-    //             m_logFile.errorString().toLocal8Bit().constData());
-    //     m_logToFileEnabled = false;
-    //     fprintf(stderr, "LogManager: Logging to file is disabled");
-    // }
+LogManager::LogManager(QObject* parent) : QObject(parent) {
+    qDebug() << "LogManager: Instance created. Awaiting spdlog initialization.";
 }
 
 LogManager::~LogManager() {
-    if (m_logFile.isOpen()) {
-        m_logStream << QDateTime::currentDateTime().toString(
-                           "yyyy-MM--dd hh:mm::ss")
-                    << " [INFO ] LogManager:: Application shutting down. Log "
-                       "file closed."
-                    << Qt::endl;
-        m_logFile.close();
-    }
-    qInstallMessageHandler(0);
+    //  spdlog::shutdown();
 }
 
-void LogManager::setLogToFileEnabled(bool enabled) {
-    m_logToFileEnabled = enabled;
-    qDebug() << "LogManager: Log file set to" << (enabled ? "true" : "false");
-}
+std::vector<spdlog::sink_ptr> LogManager::createSinks(
+    spdlog::level::level_enum consoleLevel, bool logToConsole,
+    spdlog::level::level_enum fileLevel, bool logToFile,
+    const QString& logDirPath, const QString& logFileName) {
+    std::vector<spdlog::sink_ptr> sinks;
 
-void LogManager::setLogToConsoleEnabled(bool enabled) {
-    m_logToConsoleEnabled = enabled;
-    qDebug() << "LogManager: Log console set to"
-             << (enabled ? "true" : "false");
-}
-
-void LogManager::setLogLevel(QtMsgType level) {
-    m_currentLogLevel = level;
-    qDebug() << "LogManager: Log level set to" << getMessageTypeName(level);
-}
-
-void LogManager::handleMessage(QtMsgType type,
-                               const QMessageLogContext &context,
-                               const QString &msg) {
-    if (m_isHandlingMessage) {
-        return;
+    if (logToConsole) {
+        auto console_sink =
+            std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        console_sink->set_level(consoleLevel);
+        console_sink->set_pattern(
+            "[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [%P] [%t] [%s:%#,%!] %v");
+        sinks.push_back(console_sink);
     }
 
-    m_isHandlingMessage = true;
-
-    if (type < m_currentLogLevel) {
-        m_isHandlingMessage = false;
-        return;
-    }
-
-    QString file = "unknown";
-    int line = 0;
-    QString function = "unknown";
-
-    if (context.file) {
-        file = QString(context.file);
-        // Убираем полный путь, оставляем только имя файла
-        int lastSlash = file.lastIndexOf('/');
-        if (lastSlash != -1) {
-            file = file.mid(lastSlash + 1);
+    if (logToFile) {
+        QDir logDir(logDirPath);
+        if (!logDir.exists()) {
+            logDir.mkpath(".");
         }
+
+        QString fullLogFilePath = logDirPath + "/" + logFileName;
+        auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
+            fullLogFilePath.toStdString(), 1024 * 1024 * 5, 3);
+        file_sink->set_pattern(
+            "[%Y-%m-%d %H:%M:%S.%e] [%l] [%P] [%t] [%s:%#,%!] %v");
+        sinks.push_back(file_sink);
     }
-
-    if (context.line) {
-        line = context.line;
-    }
-
-    if (context.function) {
-        function = QString(context.function);
-        // Упрощаем сложные сигнатуры функций
-        function = function.section('(', 0, 0);  // Убираем параметры
-        function = function.section(' ', -1);    // Оставляем только имя функции
-    }
-
-    QString message =
-        QString("%1 [%2] %3 (%4:%5, %6)")
-            .arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"))
-            .arg(getMessageTypeName(type))
-            .arg(msg)
-            .arg(file)
-            .arg(line)
-            .arg(function);
-
-    if (m_logToConsoleEnabled) {
-        fprintf(stderr, "%s\n", message.toLocal8Bit().constData());
-        fflush(stderr);
-    }
-
-    if (m_logToFileEnabled && m_logFile.isOpen()) {
-        m_logStream << message << Qt::endl;
-        m_logStream.flush();
-    }
-
-    m_isHandlingMessage = false;
+    return sinks;
 }
 
-QString LogManager::getMessageTypeName(QtMsgType type) const {
-    switch (type) {
-        case QtDebugMsg:
-            return "DEBUG";
-        case QtInfoMsg:
-            return "INFO ";
-        case QtWarningMsg:
-            return "WARN ";
-        case QtCriticalMsg:
-            return "CRIT ";
-        case QtFatalMsg:
-            return "FATAL";
-        default:
-            return "UNKNOWN";
+void LogManager::initializeDefaultLogger(
+    const QString& loggerName, spdlog::level::level_enum consoleLevel,
+    bool logToConsole, spdlog::level::level_enum fileLevel, bool logToFile,
+    const QString& logDirPath, const QString& logFileName) {
+    std::vector<spdlog::sink_ptr> sinks =
+        createSinks(consoleLevel, logToConsole, fileLevel, logToFile,
+                    logDirPath, logFileName);
+
+    auto logger = std::make_shared<spdlog::logger>(loggerName.toStdString(),
+                                                   sinks.begin(), sinks.end());
+
+    spdlog::set_default_logger(logger);
+    spdlog::flush_every(std::chrono::seconds(1));
+
+    SPDLOG_INFO("Spdlog default logger '{}' initialized. Console: {}, File: {}",
+                loggerName.toStdString(), logToConsole ? "Enabled" : "Disabled",
+                logToFile ? "Enabled" : "Disabled");
+}
+
+std::shared_ptr<spdlog::logger> LogManager::createLogger(
+    const QString& loggerName, spdlog::level::level_enum consoleLevel,
+    bool logToConsole, spdlog::level::level_enum fileLevel, bool logToFile,
+    const QString& logDirPath, const QString& logFileName) {
+    if (spdlog::get(loggerName.toStdString())) {
+        SPDLOG_WARN(
+            "Logger with name '{}' already exists. Returning existing logger.",
+            loggerName.toStdString());
+        return spdlog::get(loggerName.toStdString());
+    }
+
+    std::vector<spdlog::sink_ptr> sinks =
+        createSinks(consoleLevel, logToConsole, fileLevel, logToFile,
+                    logDirPath, logFileName);
+
+    auto logger = std::make_shared<spdlog::logger>(loggerName.toStdString(),
+                                                   sinks.begin(), sinks.end());
+
+    logger->set_level(spdlog::level::trace);
+    spdlog::register_logger(logger);
+    m_loggers[loggerName] = logger;
+
+    SPDLOG_INFO("Created new spdlog logger '{}'. Console: {}, File: {}",
+                loggerName.toStdString(), logToConsole ? "Enabled" : "Disabled",
+                logToFile ? "Enabled" : "Disable");
+    return logger;
+}
+
+void LogManager::setLoggerSinkLevels(const QString& loggerName,
+                                     spdlog::level::level_enum consoleLevel,
+                                     spdlog::level::level_enum fileLevel) {
+    auto logger = spdlog::get(loggerName.toStdString());
+
+    if (logger) {
+        for (auto& sink : logger->sinks()) {
+            if (auto console_sink = std::dynamic_pointer_cast<
+                    spdlog::sinks::stdout_color_sink_mt>(sink)) {
+                console_sink->set_level(consoleLevel);
+            } else if (auto file_sink = std::dynamic_pointer_cast<
+                           spdlog::sinks::rotating_file_sink_mt>(sink)) {
+                file_sink->set_level(fileLevel);
+            }
+        }
+        SPDLOG_INFO("lOGGER '{}' sin levels set. Console: {}, File: {}",
+                    loggerName.toStdString(),
+                    spdlog::level::to_string_view(consoleLevel),
+                    spdlog::level::to_string_view(fileLevel));
+    } else {
+        SPDLOG_WARN("Logger '{}' not found for sink level change",
+                    loggerName.toStdString());
+    }
+}
+
+void LogManager::setLoggerEnabledState(const QString& loggerName,
+                                       bool consoleEnabled, bool fileEnabled) {
+    auto logger = spdlog::get(loggerName.toStdString());
+    if (logger) {
+        for (auto& sink : logger->sinks()) {
+            if (auto console_sink = std::dynamic_pointer_cast<
+                    spdlog::sinks::stdout_color_sink_mt>(sink)) {
+                console_sink->set_level(consoleEnabled ? spdlog::level::trace
+                                                       : spdlog::level::off);
+            }
+            if (auto file_sink = std::dynamic_pointer_cast<
+                    spdlog::sinks::rotating_file_sink_mt>(sink)) {
+                file_sink->set_level(fileEnabled ? spdlog::level::trace
+                                                 : spdlog::level::off);
+            }
+        }
+        SPDLOG_INFO("Logger '{}' output states set. Console: {}, File: {}",
+                    loggerName.toStdString(),
+                    consoleEnabled ? "Enabled" : "Disabled",
+                    fileEnabled ? "Enabled" : "Disabled");
+    } else {
+        SPDLOG_WARN("Logger '{}' not found for enabled state change.",
+                    loggerName.toStdString());
     }
 }

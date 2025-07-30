@@ -1,4 +1,5 @@
 # ./CMakeLists.txt
+#cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=path
 cmake_minimum_required(VERSION 3.14...3.27)
 project(SnakeGame LANGUAGES CXX)
 
@@ -35,10 +36,10 @@ qt5_wrap_cpp(MOC_SOURCES
     include/log_manager.hpp
 )
 
-
 add_executable(${PROJECT_NAME} ${SOURCES} ${MOC_SOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_compile_definitions(${PROJECT_NAME} PRIVATE SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 
 
 qt_add_resources(SnakeGame_RESOURCES resources.qrc)

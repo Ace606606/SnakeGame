@@ -19,7 +19,7 @@ class OptionWidget : public BasePageWidget {
     virtual void retranslateUi() override;
 
     AppConstants::GameSettings::Difficulty getSelectedDifficulty() const;
-    bool isWallCrossingAllowed() const;
+    bool getIsWallCrossingAllowed() const;
     QString getSelectedLanguageCode() const;
 
     void loadSettings();
@@ -62,6 +62,7 @@ class OptionWidget : public BasePageWidget {
     void setupDifficultyControls(QVBoxLayout *layoutContentButtons);
     void setupWallCrossingControls(QVBoxLayout *layoutContentButtons);
     void setupLanguageControls(QVBoxLayout *layoutContentButtons);
-    void setupActionButtons(QVBoxLayout *layoutContentButtons);
+    void setupActionButtons(QVBoxLayout *layoutContentButtons,
+                            QWidget *contentButtons);
     void showUnsavedChangedDialog();
 };

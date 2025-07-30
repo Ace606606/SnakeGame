@@ -1,6 +1,8 @@
 // ./src/main_window.cpp
 #include "main_window.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <QApplication>
 #include <QDebug>
 #include <QEvent>
@@ -23,7 +25,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setupStatusBar();
     setupConnections();
     // loadMainWindowSettings();
-    retranslateUI();
 }
 
 // MainWindow::~MainWindow() {  // saveMainWindowSettings();}
@@ -58,18 +59,6 @@ void MainWindow::setupStatusBar() {
     setStatusBar(m_statusBar);
 
     m_statusLabelBar = UiFactory::createInfoLabel(tr("Ready"), m_statusBar);
-
-    m_langEnButton = UiFactory::createStandardButton(
-        AppConstants::LanguageCodes::LANGUAGE_NAMES
-            [AppConstants::LanguageCodes::ENGLISH_US],
-        80, 25, m_statusBar);  // constants
-    m_langRuButton = UiFactory::createStandardButton(
-        AppConstants::LanguageCodes::LANGUAGE_NAMES
-            [AppConstants::LanguageCodes::RUSSIAN_RU],
-        80, 25, m_statusBar);  // constants
-
-    m_statusBar->addPermanentWidget(m_langEnButton);
-    m_statusBar->addPermanentWidget(m_langRuButton);
 }
 
 void MainWindow::setupConnections() {
@@ -86,19 +75,6 @@ void MainWindow::setupConnections() {
             &MainWindow::handleGameSettingsChanged);
     connect(m_optionWidget, &OptionWidget::requestLanguageChange, this,
             &MainWindow::handleChangeLanguage);
-
-    // =============================================================
-    // delete
-    connect(m_langEnButton, &QPushButton::clicked, this, [this]() {
-        LanguageManager::instance().setLanguage(
-            AppConstants::LanguageCodes::ENGLISH_US);
-    });
-
-    connect(m_langRuButton, &QPushButton::clicked, this, [this]() {
-        LanguageManager::instance().setLanguage(
-            AppConstants::LanguageCodes::RUSSIAN_RU);
-    });
-    // =============================================================
 }
 
 void MainWindow::retranslateUI() {
@@ -109,7 +85,7 @@ void MainWindow::retranslateUI() {
 }
 
 void MainWindow::onStartGameClicked() {
-    qDebug("The start button is pressed");
+    SPDLOG_DEBUG("The start button is pressed");
 
     // m_gameWidget->setSpeed(m_optionWidget->getSpeed());
     // m_gameWidget->setWallCrossing(m_optionWidget->isWallCrossingAllowed());
@@ -120,14 +96,14 @@ void MainWindow::onStartGameClicked() {
 }
 
 void MainWindow::onOptionMenuOpened() {
-    qDebug("The Option button is pressed");
+    SPDLOG_DEBUG("The Option button is pressed");
     m_optionWidget->loadSettings();
     m_stack->setCurrentWidget(m_optionWidget);
 }
 
 void MainWindow::onExitAppClicked() {
     QMessageBox::StandardButton reply;
-    qDebug("The Exit button is pressed");
+    SPDLOG_DEBUG("The Exit button is pressed");
 
     reply = QMessageBox::question(this, "Confirm Exit",
                                   "Are you sure want to exit?",
@@ -138,41 +114,21 @@ void MainWindow::onExitAppClicked() {
 }
 
 void MainWindow::onBackToMainMenu() {
-    qDebug("The BackToMainMenu button is pressed");
+    SPDLOG_DEBUG("The BackToMainMenu button is pressed");
     m_stack->setCurrentWidget(m_mainWidget);
 }
 
 void MainWindow::handleChangeLanguage(const QString &languageCode) {
     LanguageManager::instance().setLanguage(languageCode);
-    qDebug() << "MainWindow: Language changed to" << languageCode;
+    SPDLOG_INFO("Language changed to {}", languageCode.toStdString());
 }
 
 void MainWindow::handleGameSettingsChanged() {
-    qDebug() << "MainWindow: Game settings have been changed and saved.";
-}
-
-void MainWindow::changeEvent(QEvent *event) {
-    if (event->type() == QEvent::LanguageChange) {
-        retranslateUI();
-    }
-    QMainWindow::changeEvent(event);
+    SPDLOG_DEBUG("Game settings have been changed and saved.");
 }
 
 // void MainWindow::loadMainWindowSettings() {
-//     restoreGeometry(
-//         SettingsManager::instance()
-//             .m_settings.value("MainWindow/geometry")
-//             .toByteArray());  // Доступ к QSettings через SettingsManager
-//     restoreState(SettingsManager::instance()
-//                      .m_settings.value("MainWindow/state")
-//                      .toByteArray());
-//     qDebug() << "MainWindow settings loaded.";
 // }
 
 // void MainWindow::saveMainWindowSettings() {
-//     SettingsManager::instance().m_settings.setValue("MainWindow/geometry",
-//                                                     saveGeometry());
-//     SettingsManager::instance().m_settings.setValue("MainWindow/state",
-//                                                     saveState());
-//     qDebug() << "MainWindow settings saved.";
 // }

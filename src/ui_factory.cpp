@@ -1,4 +1,4 @@
-// ./srs/ui_factory.cpp
+// ./src/ui_factory.cpp
 #include "ui_factory.hpp"
 
 QPushButton* UiFactory::createStandardButton(const QString& text,

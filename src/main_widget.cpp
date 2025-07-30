@@ -2,6 +2,8 @@
 
 #include "main_widget.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <QPushButton>
 #include <QVBoxLayout>
 
@@ -9,6 +11,7 @@
 #include "ui_factory.hpp"
 
 MainWidget::MainWidget(QWidget *parent) : BasePageWidget(parent) {
+    SPDLOG_DEBUG("Create MainMenu.");
     setupContentPanel();
     setupConnections();
 }
@@ -60,6 +63,7 @@ void MainWidget::setupConnections() {
 }
 
 void MainWidget::retranslateUi() {
+    SPDLOG_DEBUG("Change language main_menu.");
     if (m_pageTitleLabel) {
         m_pageTitleLabel->setText(tr("Main Menu"));
     }

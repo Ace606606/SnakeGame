@@ -2,38 +2,55 @@
 
 #pragma once
 
-#include <QFile>
+#include <spdlog/sinks/base_sink.h>
+#include <spdlog/spdlog.h>
+
+#include <QMap>
 #include <QObject>
-#include <QTextStream>
+#include <QtGlobal>
+#include <memory>
+class QString;
 
 void customMessageOutput(QtMsgType type, const QMessageLogContext& context,
                          const QString& msg);
 
 class LogManager : public QObject {
     Q_OBJECT
+
    public:
     static LogManager& instance();
 
     LogManager(const LogManager&) = delete;
     LogManager& operator=(const LogManager&) = delete;
 
-    void setLogToFileEnabled(bool enabled);
-    void setLogToConsoleEnabled(bool enabled);
-    void setLogLevel(QtMsgType level);
+    void initializeDefaultLogger(const QString& loggerName,
+                                 spdlog::level::level_enum consoleLevel,
+                                 bool logToConsole,
+                                 spdlog::level::level_enum fileLevel,
+                                 bool logToFile, const QString& logDirPath,
+                                 const QString& logFileName);
 
-    void handleMessage(QtMsgType type, const QMessageLogContext& context,
-                       const QString& msg);
+    std::shared_ptr<spdlog::logger> createLogger(
+        const QString& loggerName, spdlog::level::level_enum consoleLevel,
+        bool logToConsole, spdlog::level::level_enum fileLevel, bool logToFile,
+        const QString& logDirPath, const QString& logFileName);
+
+    void setLoggerLevel(const QString& loggerName,
+                        spdlog::level::level_enum level);
+    void setLoggerSinkLevels(const QString& loggerNAme,
+                             spdlog::level::level_enum consoleLevel,
+                             spdlog::level::level_enum fileLevel);
+    void setLoggerEnabledState(const QString& loggerName, bool consoleEnabled,
+                               bool fileEnabled);
 
    private:
     explicit LogManager(QObject* parent = nullptr);
     ~LogManager();
 
-    QFile m_logFile;
-    QTextStream m_logStream;
-    bool m_logToFileEnabled = false;
-    bool m_logToConsoleEnabled = true;
-    QtMsgType m_currentLogLevel = QtDebugMsg;
-    bool m_isHandlingMessage = false;
+    std::vector<spdlog::sink_ptr> createSinks(
+        spdlog::level::level_enum consoleLevel, bool logToConsole,
+        spdlog::level::level_enum fileLevel, bool logToFile,
+        const QString& logDirPath, const QString& logFileName);
 
-    QString getMessageTypeName(QtMsgType type) const;
+    QMap<QString, std::shared_ptr<spdlog::logger>> m_loggers;
 };
